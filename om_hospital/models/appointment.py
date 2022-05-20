@@ -30,6 +30,7 @@ class HospitalAppointment(models.Model):
         ('cancel', 'Cancel')], default='draft', string="Status", required=True)
     hide_sale_price = fields.Boolean(string='Hide')
     doctor_id = fields.Many2one('res.users', string='Doctor', tracking=True)
+    operation_id = fields.Many2one('hospital.operation', string='Operation')
     pharmacy_line_ids = fields.One2many('appointment.pharmacy.line', 'appointment_id', string='Pharmacy Lines')
 
     def unlink(self):

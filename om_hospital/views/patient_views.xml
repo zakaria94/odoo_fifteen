@@ -62,9 +62,10 @@
                             <field name="age"/>
                         </group>
                         <group>
-                            <field name="gender"/>
+                            <field name="gender" widget="radio"/>
                             <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <!--                            <field name="appointment_id"/>-->
+                            <!-- widget="many2many_checkboxes -->
                             <field name="appointment_count"/>
                             <field name="active" invisible="1"/>
                         </group>

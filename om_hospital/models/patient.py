@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import date
+from dateutil import relativedelta
 
 
 class HospitalPatient(models.Model):
@@ -12,7 +13,8 @@ class HospitalPatient(models.Model):
     name = fields.Char(string='Name', tracking=True)
     ref = fields.Char(string='reference')
     birthday = fields.Date(string='Birth Day')
-    age = fields.Integer(string='Age', compute='_compute_age', store=True)
+    age = fields.Integer(string='Age', compute='_compute_age', inverse='_inverse_compute_age', search='_search_age', )
+    # store=True)
     gender = fields.Selection([
         ('male', 'Male'),
         ('female', 'Female'),
@@ -30,6 +32,17 @@ class HospitalPatient(models.Model):
     appointment_id = fields.Many2one('hospital.appointment', string='Appointment')
     appointment_count = fields.Integer(string='Appointment Count', compute='_compute_appointment_count', store=True)
     appointment_ids = fields.One2many('hospital.appointment', 'patient_id', string='Appointments')
+
+    def _search_age(self, operator, value):
+        # print("===================== value", value)
+        birthday = date.today() - relativedelta.relativedelta(years=value)
+        # print("===================== date today ", date.today())
+        # print("===================== birthday ", birthday)
+        start_of_year = birthday.replace(day=1, month=1)
+        end_of_year = birthday.replace(day=31, month=12)
+        # print("===================== start_of_year ", start_of_year)
+        # print("===================== end_of_year ", end_of_year)
+        return [('birthday', '>=', start_of_year), ('birthday', '<=', end_of_year)]
 
     @api.depends('appointment_ids')
     def _compute_appointment_count(self):
@@ -65,6 +78,18 @@ class HospitalPatient(models.Model):
             else:
                 rec.age = 0
 
+    @api.depends('age')
+    def _inverse_compute_age(self):
+        today = date.today()
+        for rec in self:
+            rec.birthday = today - relativedelta.relativedelta(years=rec.age)
+
+    @api.ondelete(at_uninstall=False)
+    def _check_appointments(self):
+        for rec in self:
+            if rec.appointment_ids:
+                raise ValidationError(_("You Cant delete Patient has appointment"))
+
     # def name_get(self):
     #     patient_list = []
     #     for rec in self:
@@ -74,3 +99,7 @@ class HospitalPatient(models.Model):
 
     def name_get(self):
         return [(rec.id, "[%s:%s]" % (rec.ref, rec.name)) for rec in self]
+
+    def action_test(self):
+        print("===================== Button Clicked ============")
+        return

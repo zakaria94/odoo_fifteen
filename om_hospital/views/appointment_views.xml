@@ -21,8 +21,8 @@
                     <button name="action_consultation" type="object" string="In Consultation"/>
                 </header>
                 <field name="name"/>
-                <field name="patient_id"/>
-                <field name="ref" optional="hide"/>
+                <field name="patient_id" widget="selection"/>
+                <field name="ref" optional="hide" readonly="1"  force_save="1"/>
                 <field name="doctor_id" widget="many2one_avatar_user"/> <!--  widget="many2one_avatar" -->
                 <field name="gender" optional="hide"/>
                 <field name="date_time" optional="show"/>
@@ -32,6 +32,10 @@
                        widget="badge"/>
                 <button name="action_done" type="object" string="In Done" class="fa fa-check"
                         attrs="{'invisible': [('state', '!=', 'in_consultation')]}"/>
+                <groupby name="patient_id">
+                    <button name="action_test" type="object" string="Clik Me" class="oe_highlight" />
+                    <button name="edit" type="edit" string="Edit" />
+                </groupby>
             </tree>
         </field>
     </record>
@@ -80,6 +84,7 @@
                             <field name="hide_sale_price" groups="base.group_no_one"/>
                             <!-- groups="base.group_no_one" only show field in the developer mode -->
                             <field name="date" default_focus="1"/>
+                            <field name="operation_id" />
                         </group>
                     </group>
                     <notebook>
