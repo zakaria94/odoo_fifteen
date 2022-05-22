@@ -21,6 +21,7 @@ class HospitalPatient(models.Model):
         ('other', 'Other'),
     ], string='Gender')
     active = fields.Boolean(string='Active', default=True)
+    is_birthday = fields.Boolean(string='Birthday ?', compute='_compute_is_birthday')
     image = fields.Image(string='Image')
     parent = fields.Char(string='Parent')
     marital = fields.Selection([
@@ -99,6 +100,18 @@ class HospitalPatient(models.Model):
 
     def name_get(self):
         return [(rec.id, "[%s:%s]" % (rec.ref, rec.name)) for rec in self]
+
+    @api.depends('birthday')
+    def _compute_is_birthday(self):
+        for rec in self:
+            is_birthday = False
+            if rec.birthday:
+                today = date.today()
+                print("today is ,", today.day)
+                print("Birthday today ,", rec.birthday.day)
+                if today.day == rec.birthday.day and today.month == rec.birthday.month:
+                    is_birthday = True
+            rec.is_birthday = is_birthday
 
     def action_test(self):
         print("===================== Button Clicked ============")

@@ -9,6 +9,7 @@ class HospitalAppointment(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Appointment Details"
     _rec_name = 'ref'
+    _order = 'id desc'
 
     name = fields.Char(string='Appointment')
     # patient_id = fields.Many2one('hospital.patient', string='Patient', ondelete='restrict')

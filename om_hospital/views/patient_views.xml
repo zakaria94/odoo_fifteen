@@ -34,7 +34,8 @@
             <tree string="Patient Tree" export_xlsx="0">
                 <field name="name" string="Patient Name"/>
                 <field name="ref"/>
-                <field name="age"/>
+                <field name="age" avg="Avg. of Age"/>
+                <field name="appointment_count" sum="Total Appointment"/>
                 <field name="gender"/>
             </tree>
         </field>
@@ -46,10 +47,18 @@
         <field name="arch" type="xml">
             <form string="Patient Form">
                 <sheet>
+                    <div class="alert alert-info text-center o_form_header" role="alert"
+                    attrs="{'invisible': [('is_birthday','=', False)]}">
+                        <a class="close" data-dismiss="alert" href="#">X</a>
+                        <div>
+                            <strong>Today is birthday</strong>
+                        </div>
+                        <div>Wish <field name="name" readonly="1"/></div>
+                    </div>
                     <field name="image" widget="image" width="100" height="100" class="oe_avatar"/>
                     <div class="oe_title">
                         <h2>
-                            <label for='name' string="Name" class="oe_edit_only" />
+                            <label for='name' string="Name" class="oe_edit_only"/>
                             <field name="name"/>
                         </h2>
                         <h2>
@@ -66,7 +75,8 @@
                             <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <!--                            <field name="appointment_id"/>-->
                             <!-- widget="many2many_checkboxes -->
-                            <field name="appointment_count"/>
+                            <field name="appointment_count" sum="Total Appointment"/>
+                            <field name="is_birthday" />
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
