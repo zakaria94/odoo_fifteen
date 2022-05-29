@@ -36,6 +36,7 @@
                     <button name="action_test" type="object" string="Clik Me" class="oe_highlight" />
                     <button name="edit" type="edit" string="Edit" />
                 </groupby>
+                <field name="progress" widget="progressbar"/>
             </tree>
         </field>
     </record>
@@ -46,6 +47,8 @@
         <field name="arch" type="xml">
             <form string="Appointment Form">
                 <header>
+                    <button name="action_share_whatsapp" type="object" string="Share In Whatsapp"
+                            class="oe_highlight" data-hotkey="w" icon="fa-whatsapp"/>
                     <button name="action_consultation" type="object" states="draft" string="In Consultation"
                             class="oe_highlight"/>
                     <button name="action_done" type="object" states="in_consultation" data-hotkey="v"
@@ -84,6 +87,9 @@
                             <field name="hide_sale_price" groups="base.group_no_one"/>
                             <!-- groups="base.group_no_one" only show field in the developer mode -->
                             <field name="date" default_focus="1"/>
+                            <field name="company_id" />
+                            <field name="currency_id" />
+                            <field name="duration" />
                             <field name="operation_id" />
                         </group>
                     </group>
@@ -99,6 +105,8 @@
                                     <field name="price_unit"
                                            attrs="{'column_invisible': [('parent.hide_sale_price', '=', True)]}"/>
                                     <field name="qty"/>
+                                    <field name="company_currency_id" invisible="1"/>
+                                    <field name="prise_subtotal"/>
                                 </tree>
                                 <form>
                                     <group>
@@ -106,6 +114,7 @@
                                         <field name="price_unit"
                                                attrs="{'column_invisible': [('parent.hide_sale_price', '=', True)]}"/>
                                         <field name="qty"/>
+                                        <field name="prise_subtotal"/>
                                     </group>
                                 </form>
                             </field>
@@ -141,11 +150,24 @@
         </field>
     </record>
 
+    <!-- hospital.appointment calendar view -->
+    <record id="hospital_appointment_view_calendar" model="ir.ui.view">
+        <field name="name">hospital.appointment.view.calendar</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendar Appointments" date_start="date"  mode="month" date_delay="duration"
+                      color="state" quick_add="False">
+                 <field name="patient_id" />
+                <field name="state" filters="1" invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
     <record id="appointment_template_action" model="ir.actions.act_window">
         <field name="type">ir.actions.act_window</field>
         <field name="name">Appointments</field>
         <field name="res_model">hospital.appointment</field>
-        <field name="view_mode">tree,form,activity</field>
+        <field name="view_mode">tree,form,activity,calendar</field>
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

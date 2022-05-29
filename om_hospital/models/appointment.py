@@ -18,6 +18,9 @@ class HospitalAppointment(models.Model):
     date = fields.Date(string='Appointment Date', default=datetime.date.today())  # default=fields.Date.context_today
     gender = fields.Selection(string='Gender', related='patient_id.gender')
     ref = fields.Char(string='reference')
+    # email = fields.Char(string="Email", related='patient_id.email', readonly=False)
+    # phone = fields.Char(string="Phone", related='patient_id.phone', readonly=False)
+    # website = fields.Char(string="Website", related='patient_id.website', readonly=False)
     prescription = fields.Html(string='Prescription')
     priority = fields.Selection([
         ('0', 'Normal'),
@@ -29,10 +32,16 @@ class HospitalAppointment(models.Model):
         ('in_consultation', 'In Consultation'),
         ('done', 'Done'),
         ('cancel', 'Cancel')], default='draft', string="Status", required=True)
+    # tracking=Integer for arrange fields Tracking
     hide_sale_price = fields.Boolean(string='Hide')
     doctor_id = fields.Many2one('res.users', string='Doctor', tracking=True)
     operation_id = fields.Many2one('hospital.operation', string='Operation')
+    progress = fields.Integer(string='Progress', compute='compute_progress')
     pharmacy_line_ids = fields.One2many('appointment.pharmacy.line', 'appointment_id', string='Pharmacy Lines')
+    duration = fields.Float(string='Duration')
+    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
+
+    currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
 
     def unlink(self):
         # print("=============== Test Unlink ==============")
@@ -46,13 +55,10 @@ class HospitalAppointment(models.Model):
             self.ref = self.patient_id.ref
 
     def action_test(self):
-        print("Button clicked")
         return {
-            'effect': {
-                'fadeout': 'slow',
-                'message': 'button clickable done ',
-                'type': 'rainbow_man',
-            }
+            'type': 'ir.actions.act_url',
+            'url': 'https://www.yallakora.com/',
+            'target': 'new',
         }
 
     def action_consultation(self):
@@ -63,6 +69,11 @@ class HospitalAppointment(models.Model):
     def action_done(self):
         for rec in self:
             rec.state = 'done'
+        return {'effect': {
+            'fadeout': 'slow',
+            'message': 'done ',
+            'type': 'rainbow_man',
+        }}
 
     def action_cancel(self):
         for rec in self:
@@ -74,6 +85,30 @@ class HospitalAppointment(models.Model):
         for rec in self:
             rec.state = 'draft'
 
+    @api.depends('state')
+    def compute_progress(self):
+        for rec in self:
+            if rec.state == 'draft':
+                progress = 25
+            elif rec.state == 'in_consultation':
+                progress = 50
+            elif rec.state == 'done':
+                progress = 100
+            else:
+                progress = 0
+            rec.progress = progress
+
+    def action_share_whatsapp(self):
+        if not self.patient_id.phone:
+            raise ValidationError(_("Missing Phone Number"))
+        msg = 'Hi %s' % self.patient_id.name
+        whatsapp_api_url = 'https://wa.me/%s/?text=%s' % (self.patient_id.phone, msg)
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'new',
+            'url': whatsapp_api_url,
+        }
+
 
 class AppointmentPharmacyLine(models.Model):
     _name = "appointment.pharmacy.line"
@@ -83,3 +118,13 @@ class AppointmentPharmacyLine(models.Model):
     price_unit = fields.Float(string='Price', related='product_id.list_price')
     qty = fields.Integer(string='Quantity')
     appointment_id = fields.Many2one('hospital.appointment', string='Appointment')
+
+    company_currency_id = fields.Many2one('res.currency', related='appointment_id.currency_id')
+
+    prise_subtotal = fields.Monetary(string='Sub Total', compute='compute_prise_subtotal',
+                                     currency_field='company_currency_id')
+
+    @api.depends('price_unit', 'qty')
+    def compute_prise_subtotal(self):
+        for rec in self:
+            rec.prise_subtotal = rec.price_unit * rec.qty

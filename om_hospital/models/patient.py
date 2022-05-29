@@ -29,9 +29,12 @@ class HospitalPatient(models.Model):
         ('m', 'Married'),
     ], string='Marital Status', tracking=True)
     partner_name = fields.Char(string='Partner Name')
+    email = fields.Char(string="Email")
+    phone = fields.Char(string="Phone")
+    website = fields.Char(string="Website")
     tag_ids = fields.Many2many('patient.tag', string='Tags')
     appointment_id = fields.Many2one('hospital.appointment', string='Appointment')
-    appointment_count = fields.Integer(string='Appointment Count', compute='_compute_appointment_count', store=True)
+    appointment_count = fields.Integer(string='Appointment Count', compute='_compute_appointment_count')
     appointment_ids = fields.One2many('hospital.appointment', 'patient_id', string='Appointments')
 
     def _search_age(self, operator, value):
@@ -48,7 +51,8 @@ class HospitalPatient(models.Model):
     @api.depends('appointment_ids')
     def _compute_appointment_count(self):
         for rec in self:
-            rec.appointment_count = self.env['hospital.appointment'].search_count([('patient_id', '=', rec.id)])
+            count = self.env['hospital.appointment'].search_count([('patient_id', '=', rec.id)])
+            rec.appointment_count = count
 
     @api.model
     def create(self, vals):

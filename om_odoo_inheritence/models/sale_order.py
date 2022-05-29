@@ -10,5 +10,6 @@ class SaleOrder(models.Model):
     confirm_user_id = fields.Many2one('res.users', string='Confirmed User')
 
     def action_confirm(self):
+        # self.env['hospital.patient'].browse()
         super(SaleOrder, self).action_confirm()
         self.confirm_user_id = self.env.user.id
