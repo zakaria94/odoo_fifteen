@@ -32,6 +32,13 @@ class CancelAppointmentWizard(models.TransientModel):
         #     raise ValidationError("error")
         self.appointment_id.state = 'cancel'
         return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'cancel.appointment.wizard',
+            'target': 'new',
+            'res_id': self.id
         }
+        # return {
+        #     'type': 'ir.actions.client',
+        #     'tag': 'reload',
+        # }
