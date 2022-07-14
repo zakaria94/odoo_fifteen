@@ -43,6 +43,17 @@ class HospitalAppointment(models.Model):
 
     currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
 
+    # mapped, sorted
+    def test_recordset(self):
+        for rec in self:
+            print("Odoo ORM : Record Set Operations")
+            partners = self.env['res.partner'].search([])
+            patients = self.env['hospital.patient'].search([])
+            print("Partners ==================", partners)
+            print("Mapped Partners name ==================", partners.mapped('name'))
+            print("Sorted Partners ==================", partners.sorted(lambda p: p.create_date, reverse=True))
+            print("Filtered Partners ==================", patients.filtered(lambda p: p.age >= 28))
+
     def unlink(self):
         # print("=============== Test Unlink ==============")
         if self.state == 'done':
@@ -63,8 +74,47 @@ class HospitalAppointment(models.Model):
 
     def action_consultation(self):
         for rec in self:
-            if rec.state == 'draft':
-                rec.state = 'in_consultation'
+            # odoo search method
+            patients = self.env['hospital.patient'].search([])
+            # print("Patients .................. ", patients)
+            # odoo search and
+            male_patients = self.env['hospital.patient'].search([
+                ('gender', '=', 'male'), ('age', '>=', 28)
+            ])
+            # print("Male Patients .................. ", male_patients)
+            # odoo search or
+            male_patients = self.env['hospital.patient'].search(['|',
+                                                                 ('gender', '=', 'male'), ('age', '>=', 28)
+                                                                 ])
+            # print("Male Patients OR .................. ", male_patients)
+
+            # odoo search count
+            patients_count = self.env['hospital.patient'].search_count([])
+            # print("Patients Count .................. ", patients_count)
+
+            male_patients = self.env['hospital.patient'].search_count(['|',
+                                                                       ('gender', '=', 'male'), ('age', '>=', 28)
+                                                                       ])
+            # print("Male Patients OR Count .................. ", male_patients)
+
+            # odoo Ref method
+            om_hospital = self.env.ref('om_hospital.patient_tag_vip')
+            # print('om_hospital ...........', om_hospital.id)
+
+            # odoo browse method     Take a List
+            browse_res = self.env['hospital.patient'].browse([21, 2])
+            # print('om_hospital browse ...........', browse_res)
+
+            # odoo browse method and exists
+            browse_res = self.env['hospital.patient'].browse(200)
+            print('om_hospital browse ...........', browse_res)
+            if browse_res.exists():
+                print("Existing")
+            else:
+                print("No")
+
+            # if rec.state == 'draft':
+            #     rec.state = 'in_consultation'
 
     def action_done(self):
         for rec in self:
@@ -128,3 +178,6 @@ class AppointmentPharmacyLine(models.Model):
     def compute_prise_subtotal(self):
         for rec in self:
             rec.prise_subtotal = rec.price_unit * rec.qty
+
+# Search, search_count, ref, browse, exists, create, write, copy, unlink, default_get, name_get, name_search
+# filtered, sudo, with_context

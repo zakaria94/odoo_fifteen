@@ -102,6 +102,7 @@ class HospitalPatient(models.Model):
     #         patient_list.append((rec.id, name))
     #     return patient_list
 
+    # Name Get
     def name_get(self):
         return [(rec.id, "[%s:%s]" % (rec.ref, rec.name)) for rec in self]
 

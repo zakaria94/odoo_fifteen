@@ -65,6 +65,7 @@
                     <button name="%(om_hospital.patient_template_action)d" type="action" string="Test Action"
                             help="explain what this button will do"
                             confirm="Are you sure you want patient action view ?" class="oe_highlight"/>
+                    <button name="test_recordset" type="object" string="Record Set Operations" class="oe_highlight"/>
                     <field name="state" widget="statusbar" nolabel="1" options="{'clickable': '1'}"
                            statusbar_visible="draft,in_consultation,done"/>
                 </header>
