@@ -12,6 +12,7 @@
     'depends': ['mail', 'product'],
     'data': [
         'security/ir.model.access.csv',
+        'security/security_access_data.xml',
         'data/patient_tag_data.xml',
         'data/patient.tag.csv',
         'data/ir_sequence_data.xml',
