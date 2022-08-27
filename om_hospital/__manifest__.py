@@ -9,7 +9,7 @@
     'category': 'Hospital',
     'summary': 'Hospital Management System',
     'description': """ Hospital Management System Description """,
-    'depends': ['mail', 'product'],
+    'depends': ['mail', 'product', 'website'],
     'data': [
         'security/ir.model.access.csv',
         'security/security_access_data.xml',
@@ -25,6 +25,8 @@
         'views/odoo_playgroud_views.xml',
         'views/res_config_settings_views.xml',
         'views/operation_views.xml',
+        'views/template.xml',
+        'views/website_form.xml'
     ],
     'demo': [],
     'installable': True,
